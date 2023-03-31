@@ -5,7 +5,12 @@ const movesound = new Audio('movesound.mp3');
 const foodeat = new Audio('foodeat.mp3');
 const gameover = new Audio('gameover.mp3');
 const themesong = new Audio('themesong.mp3');
-const speed = prompt(`Enter the Speed of snake( use 7 for best exp.)`);
+let speed = prompt(`Enter the Speed of snake( use 7 for best exp.)`);
+const playername = prompt(`Enter the Name of the player`);
+    speed = Number(speed);
+
+let scores = [];
+
  themesong.volume = 0.5;
 let score = 0;
 let lastpaintime =0;
@@ -42,28 +47,53 @@ food = {x:10 , y:15};
     }
     }
 
+    function updateLeaderboard(playername, score) {
+        scores.push({ name: playername, score: score });
+        scores.sort((a, b) => b.score - a.score);
+      
+        let leaderboard = document.getElementById("leaderboard");
+        leaderboard.innerHTML = "";
+      
+        scores.forEach((s, index) => {
+          let row = document.createElement("div");
+          row.innerHTML = `${index + 1}. ${s.name}: ${s.score}`;
+          leaderboard.appendChild(row);
+        });
+      }
+      
 
     function gameEngine(){
 
         // updating snakearr and food 
 
-        if(isCollide(snakearr)){
+        // if(isCollide(snakearr)){
+        //     gameover.play();
+        //     themesong.pause();
+        //     inputDir = {x:0 , y:0};
+        //     alert("Game Over. Press any key to play again");
+        //     snakearr = [{x:13 , y:15}];
+        //     themesong.play();
+        //     score =0;
+        // }
+
+        if (isCollide(snakearr)) {
             gameover.play();
             themesong.pause();
-            inputDir = {x:0 , y:0};
+            inputDir = { x: 0, y: 0 };
             alert("Game Over. Press any key to play again");
-            snakearr = [{x:13 , y:15}];
+            snakearr = [{ x: 13, y: 15 }];
             themesong.play();
-            score =0;
+            updateLeaderboard(playername, score);
+            score = 0;
+          }
+          
 
-
-        }
 
         //  if snake it the food then  increment score and regenerate food 
 
         if(snakearr[0].y === food.y && snakearr[0].x === food.x){
             foodeat.play();
-            score += 1;
+            score += speed;
             scoreBox.innerHTML= "Score: " + score; 
             // console.log(score);
             snakearr.unshift({x: snakearr[0].x +  inputDir.x , y: snakearr[0].y +  inputDir.y});
@@ -169,3 +199,21 @@ window.addEventListener('keydown',e =>{
             break;
     }
 })
+
+
+var keys = {};
+window.addEventListener("keydown",
+    function(e){
+        keys[e.code] = true;
+        switch(e.code){
+            case "ArrowUp": case "ArrowDown": case "ArrowLeft": case "ArrowRight":
+            case "Space": e.preventDefault(); break;
+            default: break; // do not block other keys
+        }
+    },
+false);
+window.addEventListener('keyup',
+    function(e){
+        keys[e.code] = false;
+    },
+false);
